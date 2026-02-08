@@ -1,0 +1,24 @@
+{
+  "name": "mercadopago-backend",
+  "version": "1.0.0",
+  "description": "Backend Mercado Pago",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fteije/mercadopago-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fteije/mercadopago-backend/issues"
+  },
+  "homepage": "https://github.com/fteije/mercadopago-backend#readme",
+  "dependencies": {
+    "mercadopago": "^2.12.0"
+  }
+}
