@@ -1,36 +1,38 @@
-const mercadopago = require("mercadopago");
-
-mercadopago.configure({
-  access_token: process.env.MP_ACCESS_TOKEN,
-});
+const { MercadoPagoConfig, Preference } = require("mercadopago");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).send("Method not allowed");
   }
 
   try {
-    const preference = {
-      items: [
-        {
-          title: "Producto de prueba",
-          quantity: 1,
-          unit_price: 1000,
-          currency_id: "ARS",
-        },
-      ],
-      back_urls: {
-        success: "https://google.com",
-        failure: "https://google.com",
-        pending: "https://google.com",
-      },
-      auto_return: "approved",
-    };
+    const client = new MercadoPagoConfig({
+      accessToken: process.env.MP_ACCESS_TOKEN,
+    });
 
-    const response = await mercadopago.preferences.create(preference);
+    const preference = new Preference(client);
+
+    const result = await preference.create({
+      body: {
+        items: [
+          {
+            title: "Producto de prueba",
+            quantity: 1,
+            unit_price: 1000,
+            currency_id: "ARS",
+          },
+        ],
+        back_urls: {
+          success: "https://google.com",
+          failure: "https://google.com",
+          pending: "https://google.com",
+        },
+        auto_return: "approved",
+      },
+    });
 
     res.status(200).json({
-      init_point: response.body.init_point,
+      init_point: result.init_point,
     });
   } catch (error) {
     console.error(error);
