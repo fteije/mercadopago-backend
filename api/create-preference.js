@@ -24,24 +24,18 @@ module.exports = async function handler(req, res) {
 
     const preference = new Preference(client);
 
-    // ===============================
-    // ITEMS (ARS)
-    // ===============================
     const items = req.body.items.map(item => ({
       title: item.name,
       quantity: item.qty,
-      unit_price: item.price, // ya viene en ARS
+      unit_price: item.price, // ARS
       currency_id: "ARS",
     }));
 
-    // ===============================
-    // CREAR PREFERENCE
-    // ===============================
     const result = await preference.create({
       body: {
         items,
 
-        // 🚫 NO usar dinero en cuenta (TEST)
+        // ❌ Excluir dinero en cuenta (TEST)
         payment_methods: {
           excluded_payment_types: [
             { id: "account_money" }
@@ -58,8 +52,9 @@ module.exports = async function handler(req, res) {
       },
     });
 
+    // 🔥 FIX CLAVE: init_point está en result.body
     res.status(200).json({
-      init_point: result.init_point,
+      init_point: result.body.init_point,
     });
 
   } catch (error) {
