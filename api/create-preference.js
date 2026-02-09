@@ -2,7 +2,9 @@ const { MercadoPagoConfig, Preference } = require("mercadopago");
 
 module.exports = async function handler(req, res) {
 
+  // ===============================
   // CORS
+  // ===============================
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -16,26 +18,31 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    if (!req.body.items || !Array.isArray(req.body.items)) {
+      return res.status(400).json({ error: "Items inválidos" });
+    }
+
     const client = new MercadoPagoConfig({
       accessToken: process.env.MP_ACCESS_TOKEN,
     });
 
     const preference = new Preference(client);
 
+    // 🔥 ITEMS REALES DEL CARRITO
+    const items = req.body.items.map(item => ({
+      title: item.name,
+      quantity: item.qty,
+      unit_price: Number(item.price),
+      currency_id: "ARS",
+    }));
+
     const result = await preference.create({
       body: {
-        items: [
-          {
-            title: "Producto Test",
-            quantity: 1,
-            unit_price: 1000,
-            currency_id: "ARS",
-          }
-        ]
+        items
       }
     });
 
-    // 🔥 COMPATIBLE CON TODAS LAS VERSIONES
+    // compatible con distintas versiones del SDK
     const initPoint =
       result.init_point ||
       (result.body && result.body.init_point);
@@ -49,7 +56,7 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error("MP ERROR REAL:", error);
+    console.error("MP ERROR:", error);
     res.status(500).json({
       error: error.message || "MercadoPago error"
     });
