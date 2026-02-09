@@ -2,7 +2,9 @@ const { MercadoPagoConfig, Preference } = require("mercadopago");
 
 module.exports = async function handler(req, res) {
 
-  // ✅ CORS
+  // ===============================
+  // CORS
+  // ===============================
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -22,21 +24,36 @@ module.exports = async function handler(req, res) {
 
     const preference = new Preference(client);
 
+    // ===============================
+    // ITEMS (ARS)
+    // ===============================
     const items = req.body.items.map(item => ({
       title: item.name,
       quantity: item.qty,
-      unit_price: item.price,
-      currency_id: "USD",
+      unit_price: item.price, // ya viene en ARS
+      currency_id: "ARS",
     }));
 
+    // ===============================
+    // CREAR PREFERENCE
+    // ===============================
     const result = await preference.create({
       body: {
         items,
+
+        // 🚫 NO usar dinero en cuenta (TEST)
+        payment_methods: {
+          excluded_payment_types: [
+            { id: "account_money" }
+          ]
+        },
+
         back_urls: {
           success: "https://TU-SITIO.com/gracias",
           failure: "https://TU-SITIO.com/error",
           pending: "https://TU-SITIO.com/pendiente",
         },
+
         auto_return: "approved",
       },
     });
@@ -44,6 +61,7 @@ module.exports = async function handler(req, res) {
     res.status(200).json({
       init_point: result.init_point,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "MercadoPago error" });
