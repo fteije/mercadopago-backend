@@ -2,9 +2,7 @@ const { MercadoPagoConfig, Preference } = require("mercadopago");
 
 module.exports = async function handler(req, res) {
 
-  // ===============================
-  // CORS (OBLIGATORIO)
-  // ===============================
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -37,8 +35,17 @@ module.exports = async function handler(req, res) {
       }
     });
 
+    // 🔥 COMPATIBLE CON TODAS LAS VERSIONES
+    const initPoint =
+      result.init_point ||
+      (result.body && result.body.init_point);
+
+    if (!initPoint) {
+      throw new Error("No init_point returned from MercadoPago");
+    }
+
     res.status(200).json({
-      init_point: result.body.init_point,
+      init_point: initPoint,
     });
 
   } catch (error) {
